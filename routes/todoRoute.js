@@ -1,17 +1,18 @@
 const express = require("express");
 
 const todoController = require("../controllers/todoController");
+const userMiddleware = require('../middlewares/user')
 
 const router = express.Router();
 
-router.post("/", todoController.createTodo);
+router.post("/", userMiddleware.getUserById,todoController.createTodo);
 
-router.put("/:id", todoController.updateTodo);
+router.put("/:id", userMiddleware.getUserById, todoController.updateTodo);
 
-router.delete("/:id", todoController.deleteTodo);
+router.delete("/:id", userMiddleware.getUserById,todoController.deleteTodo);
 
-router.get("/getAll", todoController.getAllTodo);
+router.get("/",userMiddleware.getUserById, todoController.getAllTodo);
 
-router.get("/:id", todoController.getIdTodo);
+router.get("/:id", userMiddleware.getUserById,todoController.getIdTodo);
 
 module.exports = router;
