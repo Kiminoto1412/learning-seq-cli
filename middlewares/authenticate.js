@@ -15,7 +15,7 @@ exports.authenticate = async (req, res, next) => {
       createError("you are unauthorized", 401);
     }
 
-    const secretKey = "1q2w3e";
+    const secretKey = process.env.JWT_SECRET_KEY || "1q2w3e";
     const decodedPayload = jwt.verify(token, secretKey);
 
     const user = await User.findOne({ where: { id: decodedPayload.id ?? 0 } });

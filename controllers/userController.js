@@ -138,7 +138,7 @@ exports.loginUser = async (req, res, next) => {
       username: username, //เอามาจากbody ไม่ต้อง user.username
       email: user.email
     };
-    const secretKey = "1q2w3e";
+    const secretKey = process.env.JWT_SECRET_KEY || "1q2w3e";
     const token = jwt.sign(payload, secretKey, {
       algorithm: "HS512",
       expiresIn: '30d',
