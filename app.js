@@ -4,6 +4,7 @@ const todoRoute = require("./routes/todoRoute");
 const userRoute = require("./routes/userRoute");
 const notFoundMiddleware = require("./middlewares/notfound");
 const errorMiddleware = require("./middlewares/error");
+const { authenticate } = require("./middlewares/authenticate");
 const app = express();
 
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use(express.urlencoded({ extended: false }));
 
 //REST API: handle resource Todo
 //CREATE, UPDATE, DELETE, GETALL, GETBYID
-app.use("/todos", todoRoute);
+app.use("/todos",authenticate, todoRoute);
 
 //REST AOI: hadle resource Users
 //CRETAE, UPDATE

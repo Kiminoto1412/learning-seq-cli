@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const { Todo, User } = require("../models");
 const createError = require("../utils/createError");
 
@@ -45,11 +46,11 @@ exports.createTodo = async (req, res, next) => {
 exports.updateTodo = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, completed, dueDate, userId } = req.body;
+    const { title, completed, dueDate} = req.body;
     const newValue = {};
     const result = await Todo.update(
-      { title, completed, dueDate, userId },
-      { where: { id, userId } }
+      { title, completed, dueDate },
+      { where: { id, userId : req.user.id } }
     );
     if (result[0] === 0) {
       //จนแถวที่เกิดการอัพเดทมีกี่แถว ถ้าเป็น0ก็คือไม่เจอ
@@ -86,8 +87,8 @@ exports.updateTodo = async (req, res, next) => {
 exports.deleteTodo = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { userId } = req.body;
-    const result = await Todo.destroy({ where: { id, userId } });
+    // const { userId } = req.body;
+    const result = await Todo.destroy({ where: { id, userId: req.user.id } });
     if (result === 0) {
       createError("todo with this id is not found", 400);
     }
@@ -100,20 +101,48 @@ exports.deleteTodo = async (req, res, next) => {
 
 exports.getAllTodo = async (req, res, next) => {
   try {
-    const { userId } = req.body;
-
+    // const { userId } = req.body;
     // const user = await User.findOne({where:{id: userId ?? 0}})
     // if(!user){
     //   createError('user not found',400)
     // }
     // console.log(Todo);
-    const todos = await Todo.findAll(
-      { where: { userId } },
-      {
-        attributes: ["id", "title", "completed", "dueDate", "userId"],
-      }
-    );
-    res.status(201).json({ todos: todos });
+    // const todos = await Todo.findAll(
+    //   { where: { userId } },
+    //   {
+    //     attributes: ["id", "title", "completed", "dueDate", "userId"],
+    //   }
+    // );
+    // res.status(201).json({ todos: todos });
+
+    // const headers = req.headers;
+    // const authorization = headers.authorization
+    // console.log(headers)
+
+
+    // const { authorization } = req.headers;
+
+    // if (!authorization || !authorization.startsWith("Bearer")) {
+    //   createError("you are unauthorized", 401);
+    // }
+
+    // // //destructuring การsplit
+    // const [, token] = authorization.split(" ");
+    // if (!token) {
+    //   createError("you are unauthorized", 401);
+    // }
+
+    // const secretKey = "1q2w3e";
+    // const decodedPayload = jwt.verify(token, secretKey);
+
+    // const user = await User.findOne({ where: { id: decodedPayload.id ?? 0 } });
+    // if (!user) {
+    //   createError("user not found", 400);
+    // }
+    // console.log(user.id);
+
+    const todos = await Todo.findAll({ where: { userId: req.user.id ?? 0 } });
+    res.json({ todos: todos });
   } catch (err) {
     next(err);
   }
@@ -129,7 +158,7 @@ exports.getIdTodo = async (req, res, next) => {
     // }
 
     const todo = await Todo.findOne({
-      where: { id: id ?? 0, userId: userId ?? 0 }, //ถ้าไม่มีid ให้ได้0 แล้วidไม่มี0 มันเริ่มที่1 มันก็จะเข้าerror
+      where: { id: id ?? 0, userId: req.user.id ?? 0 }, //ถ้าไม่มีid ให้ได้0 แล้วidไม่มี0 มันเริ่มที่1 มันก็จะเข้าerror
       attributes: ["id", "title", "completed", "dueDate", "userId"],
     });
     // console.log(todo);
