@@ -19,9 +19,17 @@ exports.authenticate = async (req, res, next) => {
     const decodedPayload = jwt.verify(token, secretKey);
 
     const user = await User.findOne({ where: { id: decodedPayload.id ?? 0 } });
+
     if (!user) {
-      createError("user not found", 400);
+        createError("user not found", 400);
     }
+
+    if(decodedPayload.iat * 1000 < new Date(user.lastUpdatePassword).getTime()){ //iat = issue_at_time
+        createError("you are unauthorized", 401);
+    }
+    // console.log(decodedPayload.iat)
+    // console.log(new Date(user.lastUpdatePassword).getTime())
+
     req.user =user; //เวลาใช้Middlewareร่วมกัน มันจะใช้ req objectร่วมกัน เราเลยส่งออกไปแบบนี้ได้
     next()
   } catch (err) {

@@ -89,7 +89,10 @@ exports.updateUser = async (req, res, next) => {
     // if (oldPassword !== req.user.password) {
     //   createError("incorrect password", 400);
     // }
-    const checkHashedPassword = await bcrypt.compare(oldPassword, req.user.password);
+    const checkHashedPassword = await bcrypt.compare(
+      oldPassword,
+      req.user.password
+    );
     // console.log(checkHashedPassword);
     if (!checkHashedPassword) {
       createError("invalid password", 400);
@@ -99,11 +102,14 @@ exports.updateUser = async (req, res, next) => {
       createError("password did't match ", 400);
     }
 
+    const value = { email, birthDate };
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      value.lastUpdatePassword = new Date();
+      value.password = hashedPassword;
+    }
 
-    await User.update(
-      { email, password: newPassword, birthDate },
-      { where: { id: req.user.id } }
-    );
+    await User.update(value, { where: { id: req.user.id } });
     res.status(200).json({ message: "update user successful" });
   } catch (err) {
     next(err);
@@ -136,17 +142,17 @@ exports.loginUser = async (req, res, next) => {
     const payload = {
       id: user.id,
       username: username, //เอามาจากbody ไม่ต้อง user.username
-      email: user.email
+      email: user.email,
     };
     const secretKey = process.env.JWT_SECRET_KEY || "1q2w3e";
     const token = jwt.sign(payload, secretKey, {
       algorithm: "HS512",
-      expiresIn: '30d',
+      expiresIn: "30d",
       // expiresIn: 1,
     });
-    console.log(token)
+    console.log(token);
 
-    res.status(200).json({ message:'login success' , token });
+    res.status(200).json({ message: "login success", token });
   } catch (err) {
     next(err);
   }

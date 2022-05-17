@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
         //   len: [6, 12],
         // },
       },
-      birth_date: DataTypes.DATEONLY,
+      birthDate: DataTypes.DATEONLY,
+      lastUpdatePassword: DataTypes.DATE
     },
     {
       underscored: true,
@@ -49,6 +50,8 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: "RESTRICT",
     });
   };
+
+
 
   //   console.log(User.name) //User
   return User;
